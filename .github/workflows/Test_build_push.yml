@@ -43,7 +43,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: .app
           file: .docker/Dockerfile
           push: true # This boolean tells the action to push after building
           tags: |
