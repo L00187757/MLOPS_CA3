@@ -44,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: .docker/Dockerfile
+          file: docker/Dockerfile
           push: true # This boolean tells the action to push after building
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/mlops-ca3:latest
