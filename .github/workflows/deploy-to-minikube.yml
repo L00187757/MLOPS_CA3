@@ -28,8 +28,8 @@ jobs:
       - name: 3. Deploy Application to Minikube
         run: |
           echo "Applying Kubernetes manifests..."
-          kubectl apply -f .app/k8s/deployment.yaml
-          kubectl apply -f .app/k8s/service.yaml
+          kubectl apply -f app/k8s/deployment.yaml
+          kubectl apply -f app/k8s/service.yaml
 
       - name: 4. Verify Deployment
         run: |
