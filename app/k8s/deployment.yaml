@@ -1,0 +1,21 @@
+# k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-ml-app-deployment # A name for your deployment
+spec:
+  replicas: 2 # Run 2 instances of your application for high availability
+  selector:
+    matchLabels:
+      app: my-ml-app
+  template:
+    metadata:
+      labels:
+        app: my-ml-app
+    spec:
+      containers:
+      - name: my-ml-app-container
+        # IMPORTANT: Change this to your Docker Hub image
+        image: sreeramkv/mlops-ca3:latest
+        ports:
+        - containerPort: 5000
