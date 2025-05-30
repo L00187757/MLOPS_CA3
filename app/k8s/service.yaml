@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: ml-app
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: my-ml-app
   ports:
