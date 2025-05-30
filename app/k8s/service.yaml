@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-ml-app-service
+  name: MLOPSCA3
 spec:
   type: NodePort
   selector:
