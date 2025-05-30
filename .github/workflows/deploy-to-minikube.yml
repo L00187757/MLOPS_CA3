@@ -10,16 +10,26 @@ jobs:
     steps:
       - name: 1. Checkout Repository
         uses: actions/checkout@v4
-
+        
+      -  name: 0. List files in the repository
+         run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing all files..."
+          ls -R
+          
       - name: 2. Set up and Start Minikube
         uses: medyagh/setup-minikube@latest
-        id: minikube 
+      - name: 4. Update Deployment with new Image Tag
+        run: |
+          sed -i "s|__IMAGE_NAME__|${{ env.DOCKER_IMAGE }}:${{ github.sha }}|g" k8s/deployment.yaml
+          echo "--- Updated deployment.yaml ---"
+          cat k8s/deployment.yaml
 
       - name: 3. Deploy Application to Minikube
         run: |
           echo "Applying Kubernetes manifests..."
-          kubectl apply -f /k8s/deployment.yaml
-          kubectl apply -f /k8s/service.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
 
       - name: 4. Verify Deployment
         run: |
