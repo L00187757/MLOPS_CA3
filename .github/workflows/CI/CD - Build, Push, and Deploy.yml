@@ -1,0 +1,77 @@
+name: CI/CD - Build, Push, and Deploy
+
+on:
+  push:
+    branches: [ "Dev" ]
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/mlops-ca3 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    name: Build and Push to Docker Hub
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: 3. Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          dockerfile: docker/Dockerfile 
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+            ${{ env.DOCKER_IMAGE }}:latest
+    outputs:
+      image_tag: ${{ github.sha }} 
+
+  deploy-to-minikube:
+    runs-on: ubuntu-latest
+    name: Deploy to Minikube
+    needs: build-and-push
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. List files in the repository (for debugging)
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing all files..."
+          ls -R .
+
+      - name: 3. Set up and Start Minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: 4. Update Deployment with new Image Tag
+        run: |
+          # CORRECTED PATH: app/k8s/deployment.yaml
+          # Using the image tag from the build job's output
+          sed -i "s|__IMAGE_NAME__|${{ env.DOCKER_IMAGE }}:${{ needs.build-and-push.outputs.image_tag }}|g" app/k8s/deployment.yaml
+          echo "--- Updated deployment.yaml (app/k8s/deployment.yaml) ---"
+          cat app/k8s/deployment.yaml
+
+      - name: 5. Deploy Application to Minikube
+        run: |
+          echo "Applying Kubernetes manifests..."
+          # CORRECTED PATHS: app/k8s/deployment.yaml and app/k8s/service.yaml
+          kubectl apply -f app/k8s/deployment.yaml
+          kubectl apply -f app/k8s/service.yaml
+
+      - name: 6. Verify Deployment
+        run: |
+          echo "Waiting for deployment to be ready..."
+          # Ensure the deployment name matches what's in your deployment.yaml
+          kubectl rollout status deployment/my-ml-app-deployment --timeout=120s 
+          echo -e "\n--- Pod Status ---"
+          kubectl get pods
+          echo -e "\n--- Service Status ---"
+          kubectl get service
