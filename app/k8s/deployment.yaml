@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: my-ml-app-container
-        image: DOCKER_IMAGE_PLACEHOLDER
+        image: docker
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
