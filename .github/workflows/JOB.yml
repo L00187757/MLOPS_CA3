@@ -20,24 +20,24 @@ jobs:
           pip install -r app/requirements.txt
           pip install pytest 
 
-      - name: Train the model
+      - name: 4. Train the model
         run: python app/models/train.py
  
-      - name: 4. Run Tests
+      - name: 5. Run Tests
         env:
           PYTHONPATH: ${{ github.workspace }}
         run:  pytest  
 
-      - name: 5. Set up Docker Buildx
+      - name: 6. Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 6. Log in to Docker Hub
+      - name: 7. Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: 7. Build and Push Docker Image
+      - name: 8. Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -55,28 +55,24 @@ jobs:
       - name: 1. Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 2. List files in the repository (for debugging)
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing all files..."
-          ls -R .
-
-      - name: 3. Set up and Start Minikube
+      - name: 2. Set up and Start Minikube
         uses: medyagh/setup-minikube@latest
 
-      - name: 4. Update Deployment with new Image Tag
+      - name: 3. Create Docker Registry Secret in Minikube
         run: |
-          sed -i "s|__IMAGE_NAME__|${{ env.DOCKER_IMAGE }}:${{ needs.build-and-push.outputs.image_tag }}|g" app/k8s/deployment.yaml
-          echo "--- Updated deployment.yaml (app/k8s/deployment.yaml) ---"
-          cat app/k8s/deployment.yaml
+          kubectl create secret docker-registry regcred \
+            --docker-server=https://index.docker.io/v1/ \
+            --docker-username=${{ secrets.DOCKER_HUB_USERNAME }} \
+            --docker-password=${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} \
+            --namespace=default  
 
-      - name: 5. Deploy Application to Minikube
+      - name: 4. Deploy Application to Minikube
         run: |
           echo "Applying Kubernetes manifests..."
           kubectl apply -f app/k8s/deployment.yaml
           kubectl apply -f app/k8s/service.yaml
 
-      - name: 6. Verify Deployment
+      - name: 5. Verify Deployment
         run: |
           echo "Waiting for deployment to be ready..."
           kubectl rollout status deployment/ml-app --timeout=120s 
