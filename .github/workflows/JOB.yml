@@ -24,6 +24,8 @@ jobs:
         run: python app/models/train.py
  
       - name: 4. Run Tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run:  pytest  
 
       - name: 5. Set up Docker Buildx
