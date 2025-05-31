@@ -71,15 +71,6 @@ jobs:
           echo "Applying Kubernetes manifests..."
           kubectl apply -f app/k8s/deployment.yaml
           kubectl apply -f app/k8s/service.yaml
-
-      - name: 5. Verify Deployment
-        run: |
-          echo "Waiting for deployment to be ready..."
-          kubectl rollout status deployment/ml-app --timeout=120s 
-          echo -e "\n--- Pod Status ---"
-          kubectl get pods
-          echo -e "\n--- Service Status ---"
-          kubectl get service
       - name: 8. Debug Deployment
         # Add this step right after your 'kubectl apply' step
         run: |
@@ -94,3 +85,13 @@ jobs:
           
           echo "\n--- Pod Logs (Look for Python errors if the pod is crashing) ---"
           kubectl logs -l app=my-ml-app --all-containers
+
+      - name: 5. Verify Deployment
+        run: |
+          echo "Waiting for deployment to be ready..."
+          kubectl rollout status deployment/ml-app --timeout=120s 
+          echo -e "\n--- Pod Status ---"
+          kubectl get pods
+          echo -e "\n--- Service Status ---"
+          kubectl get service
+      
