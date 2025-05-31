@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: my-ml-app-container
-        image: ${{ secrets.DOCKER_HUB_USERNAME }}/mlops-ca3:latest
+        image: DOCKER_IMAGE_PLACEHOLDER
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
