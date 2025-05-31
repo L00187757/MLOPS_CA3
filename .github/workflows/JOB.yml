@@ -57,24 +57,10 @@ jobs:
 
       - name: 2. Set up and Start Minikube
         uses: medyagh/setup-minikube@latest
-
-      - name: 3. Create Docker Registry Secret in Minikube
+      - name: 4. Update Deployment with new Image Tag
         run: |
-          kubectl create secret docker-registry regcred \
-            --docker-server='https://index.docker.io/v1/' \
-            --docker-username='${{ secrets.DOCKER_HUB_USERNAME }}' \
-            --docker-password='${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}'
-
-      - name: 4. Prepare Deployment Manifest
-        run: |
-          IMAGE_TAG="${{ github.sha }}"
-          FULL_IMAGE_NAME="${{ secrets.DOCKER_HUB_USERNAME }}/mlops-ca3:${IMAGE_TAG}"
-          
-          echo "Setting deployment image to: ${FULL_IMAGE_NAME}"
-          
-          sed -i "s#docker#${FULL_IMAGE_NAME}#g" app/k8s/deployment.yaml
-          
-          echo "--- Verifying deployment.yaml content before apply ---"
+          sed -i "s|__IMAGE_NAME__|${{ env.DOCKER_IMAGE }}:${{ needs.build-and-push.outputs.image_tag }}|g" app/k8s/deployment.yaml
+          echo "--- Updated deployment.yaml (app/k8s/deployment.yaml) ---"
           cat app/k8s/deployment.yaml
 
       - name: 5. Deploy Application to Minikube
