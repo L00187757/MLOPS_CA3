@@ -80,3 +80,17 @@ jobs:
           kubectl get pods
           echo -e "\n--- Service Status ---"
           kubectl get service
+      - name: 8. Debug Deployment
+        # Add this step right after your 'kubectl apply' step
+        run: |
+          echo "Pausing for 20 seconds to allow pods to try and start..."
+          sleep 20
+          
+          echo "\n--- Pod Status (Look for ImagePullBackOff or CrashLoopBackOff) ---"
+          kubectl get pods -l app=my-ml-app
+
+          echo "\n--- Describe Pods (Look at the Events section at the bottom for errors) ---"
+          kubectl describe pods -l app=my-ml-app
+          
+          echo "\n--- Pod Logs (Look for Python errors if the pod is crashing) ---"
+          kubectl logs -l app=my-ml-app --all-containers
