@@ -72,7 +72,7 @@ jobs:
           
           echo "Setting deployment image to: ${FULL_IMAGE_NAME}"
           
-          sed -i "s#DOCKER_IMAGE_PLACEHOLDER#${FULL_IMAGE_NAME}#g" deployment.yaml
+          sed -i "s#DOCKER_IMAGE_PLACEHOLDER#${FULL_IMAGE_NAME}#g" app/k8s/deployment.yaml
           
           echo "--- Verifying deployment.yaml content before apply ---"
           cat app/k8s/deployment.yaml
