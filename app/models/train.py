@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import pickle
 import os
-os.makedirs('/app/models', exist_ok=True)
+os.makedirs('models', exist_ok=True)
 
 data = pd.read_csv('dataset/bmi.csv')
 
@@ -24,7 +24,7 @@ test_score = model.score(X_test, y_test)
 print(f"Training accuracy: {train_score:.2f}")
 print(f"Test accuracy: {test_score:.2f}")
 
-with open('/app/models/model.pkl', 'wb') as f:
+with open('models/model.pkl', 'wb') as f:
     pickle.dump(model, f)
 category_map = {
     0: "Extremely Underweight",
@@ -36,5 +36,5 @@ category_map = {
 }
 
 
-with open('/app/models/category_map.pkl', 'wb') as f:
+with open('models/category_map.pkl', 'wb') as f:
     pickle.dump(category_map, f)
