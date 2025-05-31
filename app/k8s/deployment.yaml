@@ -14,9 +14,6 @@ spec:
     spec:
       containers:
       - name: my-ml-app-container
-        image: docker
-        imagePullPolicy: Always
+        image: sreeramkv/mlops-ca3:latest
         ports:
         - containerPort: 5000
-      imagePullSecrets:
-      - name: regcred
