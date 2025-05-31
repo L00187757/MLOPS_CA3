@@ -19,11 +19,15 @@ jobs:
         run: |
           pip install -r app/requirements.txt
           pip install pytest 
+
+      - name: Train the model
+        run: python app/models/train.py
+ 
       - name: 4. Run Tests
         run: |
           pytest app/tests/test_api.py
           pytest app/tests/test_model.py  
-            
+
       - name: 5. Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
