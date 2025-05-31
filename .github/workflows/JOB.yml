@@ -64,7 +64,7 @@ jobs:
             --docker-server='https://index.docker.io/v1/' \
             --docker-username='${{ secrets.DOCKER_HUB_USERNAME }}' \
             --docker-password='${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}'
-            
+
       - name: 4. Prepare Deployment Manifest
         run: |
           IMAGE_TAG="${{ github.sha }}"
@@ -75,7 +75,7 @@ jobs:
           sed -i "s#DOCKER_IMAGE_PLACEHOLDER#${FULL_IMAGE_NAME}#g" deployment.yaml
           
           echo "--- Verifying deployment.yaml content before apply ---"
-          cat deployment.yaml
+          cat app/k8s/deployment.yaml
 
       - name: 5. Deploy Application to Minikube
         run: |
