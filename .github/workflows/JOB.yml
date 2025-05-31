@@ -63,16 +63,27 @@ jobs:
           kubectl create secret docker-registry regcred \
             --docker-server=https://index.docker.io/v1/ \
             --docker-username=${{ secrets.DOCKER_HUB_USERNAME }} \
-            --docker-password=${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} \
-            --namespace=default  
+            --docker-password=${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} \  
 
-      - name: 4. Deploy Application to Minikube
+      - name: 4. Prepare Deployment Manifest
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          FULL_IMAGE_NAME="${{ secrets.DOCKER_HUB_USERNAME }}/mlops-ca3:${IMAGE_TAG}"
+          
+          echo "Setting deployment image to: ${FULL_IMAGE_NAME}"
+          
+          sed -i "s#DOCKER_IMAGE_PLACEHOLDER#${FULL_IMAGE_NAME}#g" deployment.yaml
+          
+          echo "--- Verifying deployment.yaml content before apply ---"
+          cat deployment.yaml
+
+      - name: 5. Deploy Application to Minikube
         run: |
           echo "Applying Kubernetes manifests..."
           kubectl apply -f app/k8s/deployment.yaml
           kubectl apply -f app/k8s/service.yaml
-      - name: 8. Debug Deployment
-        # Add this step right after your 'kubectl apply' step
+
+      - name: 6. Debug Deployment
         run: |
           echo "Pausing for 20 seconds to allow pods to try and start..."
           sleep 20
@@ -86,7 +97,7 @@ jobs:
           echo "\n--- Pod Logs (Look for Python errors if the pod is crashing) ---"
           kubectl logs -l app=my-ml-app --all-containers
 
-      - name: 5. Verify Deployment
+      - name: 7. Verify Deployment
         run: |
           echo "Waiting for deployment to be ready..."
           kubectl rollout status deployment/ml-app --timeout=120s 
