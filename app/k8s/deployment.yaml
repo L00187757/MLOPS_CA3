@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-app
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      app: my-ml-app
+  template:
+    metadata:
+      labels:
+        app: my-ml-app
+    spec:
+      containers:
+      - name: my-ml-app-container
+        image: sreeramkv/mlops-ca3:latest
+        ports:
+        - containerPort: 5000

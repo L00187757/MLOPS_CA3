@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BMI Predictor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>BMI Calculator</h1>
+        <form id="bmiForm">
+            <label for="height">Height (cm):</label>
+            <input type="number" id="height" min="100" max="250" required>
+            
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" min="30" max="300" required>
+            
+            <button type="submit">Calculate BMI</button>
+        </form>
+        <div id="result" class="result-container"></div>
+    </div>
+    <script>
+        document.getElementById('bmiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ height, weight })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                
+                // Get color based on BMI category
+                const colors = {
+                    0: '#3498db',  // Extremely Underweight - blue
+                    1: '#2ecc71',  // Underweight - green
+                    2: '#27ae60',  // Normal - dark green
+                    3: '#f39c12',  // Overweight - orange
+                    4: '#e74c3c',  // Obese - red
+                    5: '#c0392b'   // Extremely Obese - dark red
+                };
+                
+                const color = colors[data.prediction_code] || '#333';
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>Result</h2>
+                    <p>Your BMI: <strong>${data.bmi}</strong></p>
+                    <p>Category: <strong style="color: ${color}">${data.category}</strong></p>
+                    <div class="bmi-scale">
+                        <div class="scale-item" style="background-color: #3498db">Underweight (<18.5)</div>
+                        <div class="scale-item" style="background-color: #27ae60">Normal (18.5-24.9)</div>
+                        <div class="scale-item" style="background-color: #f39c12">Overweight (25-29.9)</div>
+                        <div class="scale-item" style="background-color: #e74c3c">Obese (≥30)</div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <p class="error">Error: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
